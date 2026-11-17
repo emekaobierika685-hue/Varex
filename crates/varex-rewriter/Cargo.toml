@@ -1,0 +1,28 @@
+[package]
+name = "varex-rewriter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+lol_html.workspace = true
+lightningcss.workspace = true
+encoding_rs.workspace = true
+url.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen.workspace = true
+
+# oxc is only needed for the JS pass. Gated so the wasm build still
+# succeeds if the oxc wasm target lags behind.
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+oxc_allocator.workspace = true
+oxc_ast.workspace = true
+oxc_codegen.workspace = true
+oxc_parser.workspace = true
+oxc_span.workspace = true
