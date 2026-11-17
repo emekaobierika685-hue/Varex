@@ -1,0 +1,42 @@
+[server]
+bind = "0.0.0.0:4000"
+public_url = "http://localhost:4000"
+wisp_path = "/wisp/"
+relay_path = "/relay"
+
+[wisp]
+max_connections = 1024
+max_streams_per_connection = 256
+credit_window = 127
+stream_queue_capacity = 64
+tcp_read_chunk = 32768
+idle_timeout_secs = 120
+connect_timeout_secs = 10
+ws_ping_interval_secs = 25
+max_bytes_per_stream = 0
+auth_password = ""
+
+[security]
+dns_cache_ttl_secs = 30
+dns_cache_capacity = 1024
+allowed_ports = [80, 443, 8080, 8443, 3000, 5000, 8000]
+allowed_hosts = []
+denied_hosts = ["*.internal", "*.local", "localhost", "*.metadata.google.internal"]
+per_ip_rate_per_sec = 20.0
+per_ip_burst = 60
+max_streams_per_ip = 512
+
+[transport]
+user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+tls_impersonation = false
+
+[observability]
+metrics_path = "/metrics"
+health_path = "/healthz"
+ready_path = "/readyz"
+json_logs = false
+
+[http_relay]
+enabled = true
+impersonate = true
+max_body_bytes = 1073741824
