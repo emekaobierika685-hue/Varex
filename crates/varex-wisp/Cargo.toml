@@ -1,0 +1,26 @@
+[package]
+name = "varex-wisp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "varex-server"
+path = "src/main.rs"
+
+[dependencies]
+varex-core = { path = "../varex-core" }
+tokio.workspace = true
+axum.workspace = true
+futures.workspace = true
+bytes.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+metrics.workspace = true
+metrics-exporter-prometheus.workspace = true
+mimalloc.workspace = true
+clap.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+proptest.workspace = true
