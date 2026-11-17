@@ -1,19 +1,11 @@
-// crates/varex-rewriter/src/html.rs
-//! Streaming HTML rewriter. Uses `lol_html::HtmlRewriter` so the caller
-//! can feed chunks — `rewrite_str` was the Phase-2 bug the brief called
-//! out because it buffers the entire document and misses tags split
-//! across chunk boundaries.
+// crates/varex-rewriter/src/html.rs (corrected)
 use std::cell::RefCell;
 use std::rc::Rc;
-use lol_html::{element, HtmlRewriter, Settings};
+use lol_html::{element, HtmlRewriter, Settings, Selector};
 use url::Url;
 use crate::url_rewrite::{rewrite_srcset, UrlRewriter};
 
-pub struct HtmlOptions {
-    pub prefix: String,
-    pub target_url: String,
-    pub runtime_script: String,
-}
+pub struct HtmlOptions { pub prefix: String, pub target_url: String, pub runtime_script: String }
 
 pub struct HtmlStream {
     inner: HtmlRewriter<'static, Box<dyn FnMut(&[u8])>>,
@@ -39,50 +31,47 @@ impl HtmlStream {
             }};
         }
 
-        let handlers: Vec<(&str, _)> = vec![
-            ("a[href]", attr_handler!("a[href]", "href")),
-            ("link[href]", attr_handler!("link[href]", "href")),
-            ("script[src]", attr_handler!("script[src]", "src")),
-            ("img[src]", attr_handler!("img[src]", "src")),
-            ("img[srcset]", attr_handler!("img[srcset]", "srcset")),
-            ("source[src]", attr_handler!("source[src]", "src")),
-            ("source[srcset]", attr_handler!("source[srcset]", "srcset")),
-            ("video[src]", attr_handler!("video[src]", "src")),
-            ("video[poster]", attr_handler!("video[poster]", "poster")),
-            ("audio[src]", attr_handler!("audio[src]", "src")),
-            ("iframe[src]", attr_handler!("iframe[src]", "src")),
-            ("embed[src]", attr_handler!("embed[src]", "src")),
-            ("object[data]", attr_handler!("object[data]", "data")),
-            ("track[src]", attr_handler!("track[src]", "src")),
-            ("form[action]", attr_handler!("form[action]", "action")),
-            ("input[formaction]", attr_handler!("input[formaction]", "formaction")),
-            ("button[formaction]", attr_handler!("button[formaction]", "formaction")),
-            ("blockquote[cite]", attr_handler!("blockquote[cite]", "cite")),
-            ("q[cite]", attr_handler!("q[cite]", "cite")),
-            ("body[background]", attr_handler!("body[background]", "background")),
-        ];
+        let mut handlers: Vec<(std::borrow::Cow<'static, Selector>, _)> = Vec::new();
+        handlers.push(("a[href]".into(), attr_handler!("a[href]", "href")));
+        handlers.push(("link[href]".into(), attr_handler!("link[href]", "href")));
+        handlers.push(("script[src]".into(), attr_handler!("script[src]", "src")));
+        handlers.push(("img[src]".into(), attr_handler!("img[src]", "src")));
+        handlers.push(("img[srcset]".into(), attr_handler!("img[srcset]", "srcset")));
+        handlers.push(("source[src]".into(), attr_handler!("source[src]", "src")));
+        handlers.push(("source[srcset]".into(), attr_handler!("source[srcset]", "srcset")));
+        handlers.push(("video[src]".into(), attr_handler!("video[src]", "src")));
+        handlers.push(("video[poster]".into(), attr_handler!("video[poster]", "poster")));
+        handlers.push(("audio[src]".into(), attr_handler!("audio[src]", "src")));
+        handlers.push(("iframe[src]".into(), attr_handler!("iframe[src]", "src")));
+        handlers.push(("embed[src]".into(), attr_handler!("embed[src]", "src")));
+        handlers.push(("object[data]".into(), attr_handler!("object[data]", "data")));
+        handlers.push(("track[src]".into(), attr_handler!("track[src]", "src")));
+        handlers.push(("form[action]".into(), attr_handler!("form[action]", "action")));
+        handlers.push(("input[formaction]".into(), attr_handler!("input[formaction]", "formaction")));
+        handlers.push(("button[formaction]".into(), attr_handler!("button[formaction]", "formaction")));
+        handlers.push(("blockquote[cite]".into(), attr_handler!("blockquote[cite]", "cite")));
+        handlers.push(("q[cite]".into(), attr_handler!("q[cite]", "cite")));
+        handlers.push(("body[background]".into(), attr_handler!("body[background]", "background")));
 
-        let out = Rc::new(RefCell::new(Vec::with_capacity(8 * 1024)));
+        let out = Rc::new(RefCell::new(Vec::<u8>::with_capacity(8 * 1024)));
         let sink_out = out.clone();
-        let sink: Box<dyn FnMut(&[u8])> = Box::new(move |chunk: &[u8]| {
-            sink_out.borrow_mut().extend_from_slice(chunk);
-        });
-
         let settings = Settings {
-            element_content_handlers: handlers
-                .into_iter()
-                .map(|(sel, h)| (std::borrow::Cow::Owned(lol_html::Selector::from_str(sel).unwrap()), h))
-                .collect(),
-            ..Settings::new(sink)
+            element_content_handlers: handlers,
+            ..Settings::new(Box::new(move |chunk: &[u8]| {
+                sink_out.borrow_mut().extend_from_slice(chunk);
+            }))
         };
-        let mut rw = HtmlRewriter::new(settings, |_: &[u8]| {});
-        // Note: `HtmlRewriter::new` above is the wrong constructor; see
-        // build note below. Using a type-erased sink instead.
-        let _ = &mut rw;
-        Err("see build note: HtmlRewriter::new signature changed in 2.3".into())
+        let inner = HtmlRewriter::new(settings, |_: &[u8]| {});
+        Ok(Self { inner, out })
     }
 
-    pub fn write(&mut self, _chunk: &[u8]) -> Result<Vec<u8>, String> {
-        Err("placeholder — replaced by the working constructor below".into())
+    pub fn write(&mut self, chunk: &[u8]) -> Result<Vec<u8>, String> {
+        self.inner.write(chunk).map_err(|e| format!("html write: {e}"))?;
+        Ok(std::mem::take(&mut self.out.borrow_mut()))
+    }
+
+    pub fn end(&mut self) -> Result<Vec<u8>, String> {
+        self.inner.end().map_err(|e| format!("html end: {e}"))?;
+        Ok(std::mem::take(&mut self.out.borrow_mut()))
     }
 }
