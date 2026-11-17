@@ -1,0 +1,5 @@
+<!doctype html><html><body><div id="result"></div>
+<script>
+const es = new EventSource("/sse"); const seen = [];
+es.onmessage = (e) => { seen.push(e.data); document.getElementById("result").textContent = seen.join(","); if (seen.length > 3) es.close(); };
+</script></body></html>

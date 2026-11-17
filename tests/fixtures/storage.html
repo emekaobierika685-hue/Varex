@@ -1,0 +1,6 @@
+<!doctype html><html><body><div id="result"></div>
+<script>
+const out = document.getElementById("result");
+if (new URLSearchParams(location.search).has("read")) out.textContent = localStorage.getItem("secret") ? "leaked" : "empty";
+else { localStorage.setItem("secret", "A"); out.textContent = "wrote"; }
+</script></body></html>

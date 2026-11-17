@@ -1,0 +1,8 @@
+<!doctype html><html><body><div id="result"></div><button id="go">go</button>
+<script>
+document.getElementById("go").onclick = () => {
+  const ws = new WebSocket(`ws://${location.host}/ws-echo`);
+  ws.onopen = () => ws.send("ping");
+  ws.onmessage = (e) => { document.getElementById("result").textContent = e.data; ws.close(); };
+};
+</script></body></html>

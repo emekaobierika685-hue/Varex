@@ -1,0 +1,45 @@
+# Test config. NOTE: the SSRF guard blocks loopback/private ranges
+# unconditionally (crates/varex-core/src/ssrf.rs). That is what the
+# wisp-security tests rely on.
+[server]
+bind = "127.0.0.1:4000"
+public_url = "http://127.0.0.1:4000"
+wisp_path = "/wisp/"
+relay_path = "/relay"
+
+[wisp]
+max_connections = 64
+max_streams_per_connection = 32
+credit_window = 4
+stream_queue_capacity = 16
+tcp_read_chunk = 8192
+idle_timeout_secs = 10
+connect_timeout_secs = 5
+ws_ping_interval_secs = 5
+max_bytes_per_stream = 0
+auth_password = ""
+
+[security]
+dns_cache_ttl_secs = 10
+dns_cache_capacity = 128
+allowed_ports = [80, 443]
+allowed_hosts = []
+denied_hosts = ["127.0.0.1", "localhost", "*.internal", "*.local"]
+per_ip_rate_per_sec = 1000.0
+per_ip_burst = 1000
+max_streams_per_ip = 64
+
+[transport]
+user_agent = "VarexE2E/0.1"
+tls_impersonation = false
+
+[observability]
+metrics_path = "/metrics"
+health_path = "/healthz"
+ready_path = "/readyz"
+json_logs = false
+
+[http_relay]
+enabled = true
+impersonate = false
+max_body_bytes = 1073741824

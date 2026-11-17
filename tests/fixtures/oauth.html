@@ -1,0 +1,5 @@
+<!doctype html><html><body><div id="result"></div><button id="login">login</button>
+<script>
+window.addEventListener("message", (e) => { if (e.data === "token-ok") document.getElementById("result").textContent = "token-ok"; });
+document.getElementById("login").onclick = () => window.open("/oauth-popup.html", "oauth", "width=400,height=300");
+</script></body></html>
