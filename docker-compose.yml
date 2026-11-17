@@ -1,0 +1,16 @@
+services:
+  varex:
+    build: .
+    image: varex:latest
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    # volumes:
+    #   - ./varex.toml:/etc/varex/varex.toml:ro   # use your own config
+    environment:
+      RUST_LOG: "varex=info"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
