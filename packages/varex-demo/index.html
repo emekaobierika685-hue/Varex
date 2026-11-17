@@ -1,0 +1,77 @@
+<!doctype html>
+<!-- packages/varex-demo/index.html -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Varex</title>
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="bar" role="banner">
+    <span class="brand" aria-label="Varex">varex</span>
+
+    <form id="nav" class="nav" role="search" autocomplete="off" novalidate>
+      <label class="sr-only" for="url">URL to open through the proxy</label>
+      <input
+        id="url"
+        class="url"
+        type="text"
+        inputmode="url"
+        placeholder="https://example.com"
+        spellcheck="false"
+        autocapitalize="none"
+        autocorrect="off"
+      />
+      <button class="go" type="submit">Go</button>
+    </form>
+
+    <div class="status" id="status" role="status" aria-live="polite">
+      <span class="dot" id="dot" aria-hidden="true"></span>
+      <span id="status-text">booting</span>
+    </div>
+
+    <label class="sr-only" for="transport">Transport preference</label>
+    <select id="transport" class="transport">
+      <option value="auto">auto</option>
+      <option value="wisp">wisp</option>
+      <option value="http-relay">http-relay</option>
+    </select>
+  </header>
+
+  <main id="main" class="stage" role="main">
+    <section class="panel" id="error-panel" hidden aria-labelledby="error-title">
+      <h1 id="error-title">Something went wrong</h1>
+      <p id="error-body"></p>
+      <div class="actions">
+        <button id="retry" class="go" type="button">Retry</button>
+        <button id="back" class="ghost" type="button">Dismiss</button>
+      </div>
+    </section>
+
+    <section class="panel" id="log-panel" aria-labelledby="log-head">
+      <div class="log-head" id="log-head">
+        <span>transport log</span>
+        <button id="clear-log" class="ghost small" type="button">clear</button>
+      </div>
+      <ol id="log" class="log" aria-live="polite" aria-relevant="additions"></ol>
+    </section>
+  </main>
+
+  <footer class="foot" role="contentinfo">
+    <span>v0.1.0</span>
+    <span aria-hidden="true">·</span>
+    <a href="/healthz">healthz</a>
+    <span aria-hidden="true">·</span>
+    <a href="/metrics">metrics</a>
+    <span aria-hidden="true">·</span>
+    <a href="https://github.com/MercuryWorkshop/wisp-protocol/blob/v1/protocol.md">wisp v1.2</a>
+  </footer>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
