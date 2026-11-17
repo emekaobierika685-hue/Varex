@@ -1,0 +1,53 @@
+[package]
+name = "varex-http-relay"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+varex-core = { path = "../varex-core" }
+tokio.workspace = true
+axum.workspace = true
+futures.workspace = true
+bytes.workspace = true
+tracing.workspace = true
+metrics.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+http.workspace = true
+url.workspace = true
+
+wreq = { workspace = true, optional = true }
+wreq-util = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true }
+
+[features]
+default = ["tls-impersonate"]
+tls-impersonate = ["dep:wreq", "dep:wreq-util"]
+plain = ["dep:reqwest"][package]
+name = "varex-http-relay"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+varex-core = { path = "../varex-core" }
+tokio.workspace = true
+axum.workspace = true
+futures.workspace = true
+bytes.workspace = true
+tracing.workspace = true
+metrics.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+http.workspace = true
+url.workspace = true
+
+wreq = { workspace = true, optional = true }
+wreq-util = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true }
+
+[features]
+default = ["tls-impersonate"]
+tls-impersonate = ["dep:wreq", "dep:wreq-util"]
+plain = ["dep:reqwest"]
